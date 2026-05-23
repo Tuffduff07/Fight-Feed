@@ -1,20 +1,14 @@
 const express = require("express");
-const fetch = require("node-fetch");
-
 const app = express();
 
 const API_KEY = process.env.GNEWS_API_KEY;
 
 app.get("/", async (req, res) => {
   try {
+    const url = `https://gnews.io/api/v4/search?q=boxing&lang=en&max=10&apikey=${API_KEY}`;
 
-    const response = await fetch(
-      `https://gnews.io/api/v4/search?q=boxing%20OR%20mma&lang=en&max=10&apikey=${API_KEY}`
-    );
-
+    const response = await fetch(url);
     const data = await response.json();
-
-    console.log(data);
 
     const articles = data.articles || [];
 
@@ -22,87 +16,38 @@ app.get("/", async (req, res) => {
       return res.send(`
         <body style="background:#050510;color:white;font-family:Arial;padding:30px;">
           <h1>🥊 Fight Feed</h1>
-          <p>No live articles loaded.</p>
+          <p>No articles loaded.</p>
           <pre>${JSON.stringify(data, null, 2)}</pre>
         </body>
       `);
     }
 
-    const newsHtml = articles.map(article => `
-      <div style="
-        background:#111122;
-        padding:20px;
-        margin-bottom:20px;
-        border-radius:16px;
-      ">
-        <h2 style="color:#ff4d4d;">
-          ${article.title}
-        </h2>
-
-        <p>
-          ${article.description || "No description available"}
-        </p>
-
-        <a href="${article.url}" target="_blank"
-          style="
-            color:#ff4d4d;
-            text-decoration:none;
-            font-weight:bold;
-          ">
-          Read More →
-        </a>
+    const cards = articles.map(article => `
+      <div style="background:#18181f;padding:20px;margin-bottom:20px;border-radius:16px;">
+        <h2>${article.title}</h2>
+        <p>${article.description || ""}</p>
+        <a href="${article.url}" target="_blank" style="color:#ff4444;">Read More</a>
       </div>
     `).join("");
 
     res.send(`
-      <body style="
-        background:#050510;
-        color:white;
-        font-family:Arial;
-        padding:30px;
-      ">
-
-        <h1 style="
-          color:#ff4d4d;
-          font-size:60px;
-        ">
-          🥊 Fight Feed
-        </h1>
-
-        <p style="font-size:28px;">
-          Live Boxing & MMA News
-        </p>
-
-        ${newsHtml}
-
+      <body style="background:#050510;color:white;font-family:Arial;padding:25px;">
+        <h1 style="color:#ff4444;">🥊 Fight Feed</h1>
+        <p>Live Boxing & MMA News</p>
+        ${cards}
       </body>
     `);
 
   } catch (error) {
-
-    console.log(error);
-
     res.send(`
-      <body style="
-        background:#050510;
-        color:white;
-        font-family:Arial;
-        padding:30px;
-      ">
+      <body style="background:#050510;color:white;font-family:Arial;padding:30px;">
         <h1>🥊 Fight Feed</h1>
-
-        <h2 style="color:red;">
-          Error Loading News
-        </h2>
-
-        <pre>${error}</pre>
+        <h2 style="color:red;">Error Loading News</h2>
+        <pre>${error.message}</pre>
       </body>
     `);
   }
 });
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log("Server running"));
