@@ -1,6 +1,7 @@
 const express = require("express");
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+const express = require("express");
+const app = express();
 const app = express();
 
 const API_KEY = process.env.GNEWS_API_KEY;
