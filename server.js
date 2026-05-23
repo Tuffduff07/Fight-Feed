@@ -3,6 +3,25 @@ const app = express();
 
 const API_KEY = process.env.GNEWS_API_KEY;
 
+app.get("/manifest.json", (req, res) => {
+  res.json({
+    name: "Fight Feed",
+    short_name: "FightFeed",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#050510",
+    theme_color: "#b30000",
+    orientation: "portrait",
+    icons: [
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/889/889455.png",
+        sizes: "512x512",
+        type: "image/png"
+      }
+    ]
+  });
+});
+
 app.get("/", async (req, res) => {
 
   try {
@@ -39,7 +58,6 @@ app.get("/", async (req, res) => {
         border-radius:20px;
         overflow:hidden;
         margin-bottom:25px;
-        box-shadow:0 0 20px rgba(0,0,0,0.4);
       ">
 
         ${article.image ? `
@@ -57,7 +75,6 @@ app.get("/", async (req, res) => {
 
           <h2 style="
             font-size:32px;
-            margin-bottom:15px;
             color:white;
           ">
             ${article.title}
@@ -93,6 +110,24 @@ app.get("/", async (req, res) => {
     `).join("");
 
     res.send(`
+
+      <html>
+
+      <head>
+
+        <title>Fight Feed</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="manifest" href="/manifest.json">
+
+        <meta name="theme-color" content="#b30000">
+
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <meta name="apple-mobile-web-app-title" content="Fight Feed">
+
+      </head>
 
       <body style="
         margin:0;
@@ -178,18 +213,6 @@ app.get("/", async (req, res) => {
             MMA
           </a>
 
-          <a href="/?category=results"
-            style="
-              background:#222;
-              color:white;
-              padding:14px 24px;
-              border-radius:999px;
-              text-decoration:none;
-              font-size:22px;
-            ">
-            Results
-          </a>
-
         </div>
 
         <div style="padding:20px;">
@@ -197,6 +220,8 @@ app.get("/", async (req, res) => {
         </div>
 
       </body>
+
+      </html>
 
     `);
 
