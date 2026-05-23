@@ -4,116 +4,104 @@ const app = express();
 
 app.get('/', (req, res) => {
 
-  res.send(`
+  res.send(`<!DOCTYPE html>
 
-  <html>
+<html>
 
-    <head>
+<head>
 
-      <title>Fight Feed</title>
+  <title>Fight Feed</title>
 
-      <style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        body {
+  <style>
 
-          background: #111;
+    body { margin:0; font-family:Arial; background:#0b0b0f; color:white; }
 
-          color: white;
+    header { padding:25px 18px; background:linear-gradient(135deg,#d60000,#111); }
 
-          font-family: Arial;
+    h1 { margin:0; font-size:32px; }
 
-          margin: 0;
+    .tabs { display:flex; gap:10px; padding:15px; overflow:auto; }
 
-          padding: 0;
+    .tab { background:#222; padding:10px 16px; border-radius:20px; }
 
-        }
+    .active { background:#d60000; }
 
-        header {
+    .card { background:#18181f; margin:15px; padding:18px; border-radius:16px; }
 
-          background: red;
+    .tag { color:#ff4444; font-weight:bold; }
 
-          padding: 20px;
+    a { color:white; text-decoration:none; }
 
-          text-align: center;
+    footer { text-align:center; color:#888; padding:25px; }
 
-          font-size: 32px;
+  </style>
 
-          font-weight: bold;
+</head>
 
-        }
+<body>
 
-        .news {
+  <header>
 
-          padding: 20px;
+    <h1>🥊 Fight Feed</h1>
 
-        }
+    <p>Boxing & MMA news in one place</p>
 
-        .card {
+  </header>
 
-          background: #1c1c1c;
+  <div class="tabs">
 
-          padding: 15px;
+    <div class="tab active">All</div>
 
-          margin-bottom: 15px;
+    <div class="tab">UFC</div>
 
-          border-radius: 10px;
+    <div class="tab">Boxing</div>
 
-        }
+    <div class="tab">MMA</div>
 
-        h2 {
+    <div class="tab">Results</div>
 
-          color: red;
+  </div>
 
-        }
+  <div class="card">
 
-      </style>
+    <div class="tag">UFC</div>
 
-    </head>
+    <h2>Latest UFC Fight News</h2>
 
-    <body>
+    <p>Breaking fight announcements, rumours and event updates.</p>
 
-      <header>🥊 Fight Feed MMA & Boxing News</header>
+  </div>
 
-      <div class="news">
+  <div class="card">
 
-        <div class="card">
+    <div class="tag">Boxing</div>
 
-          <h2>UFC News</h2>
+    <h2>Boxing Headlines</h2>
 
-          <p>Latest UFC fight announcements and breaking news.</p>
+    <p>Heavyweight news, title fights, press conferences and results.</p>
 
-        </div>
+  </div>
 
-        <div class="card">
+  <div class="card">
 
-          <h2>Boxing News</h2>
+    <div class="tag">MMA</div>
 
-          <p>Heavyweight updates, rankings and fight rumours.</p>
+    <h2>MMA Updates</h2>
 
-        </div>
+    <p>UFC, PFL, Bellator, Cage Warriors and more.</p>
 
-        <div class="card">
+  </div>
 
-          <h2>Live Results</h2>
+  <footer>Fight Feed © 2026</footer>
 
-          <p>Fight night results updated automatically.</p>
+</body>
 
-        </div>
-
-      </div>
-
-    </body>
-
-  </html>
-
-  `);
+</html>`);
 
 });
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-
-  console.log('Server running');
-
-});
+app.listen(PORT, () => console.log('Server running'));
