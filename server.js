@@ -1,122 +1,75 @@
-const express = require('express');
+const express = require("express");
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 const app = express();
 
-const news = [
-  {
-    category: "UFC",
-    title: "Conor McGregor return rumours heat up",
-    text: "Fans speculate about a possible UFC comeback later this year."
-  },
-  {
-    category: "Boxing",
-    title: "Tyson Fury hints at another fight",
-    text: "Heavyweight division could see another mega fight announced soon."
-  },
-  {
-    category: "MMA",
-    title: "PFL announces new tournament",
-    text: "Major names expected to enter the upcoming season."
-  }
-];
+const API_KEY = process.env.GNEWS_API_KEY;
 
-app.get('/', (req, res) => {
+app.get("/", async (req, res) => {
 
-  const newsHTML = news.map(article => `
-    <div class="card">
-      <div class="tag">${article.category}</div>
-      <h2>${article.title}</h2>
-      <p>${article.text}</p>
-    </div>
-  `).join('');
+  const url = `https://gnews.io/api/v4/search?q=boxing%20OR%20UFC&lang=en&max=10&apikey=${API_KEY}`;
 
-  res.send(`<!DOCTYPE html>
-<html>
-<head>
+  const response = await fetch(url);
+  const data = await response.json();
+
+  let articles = data.articles || [];
+
+  let html = `
+  <html>
+  <head>
   <title>Fight Feed</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      margin:0;
-      font-family:Arial;
-      background:#0b0b0f;
-      color:white;
-    }
+  body{
+    background:#050510;
+    color:white;
+    font-family:Arial;
+    padding:20px;
+  }
 
-    header {
-      padding:25px 18px;
-      background:linear-gradient(135deg,#d60000,#111);
-    }
+  h1{
+    color:red;
+  }
 
-    h1 {
-      margin:0;
-      font-size:32px;
-    }
+  .card{
+    background:#111;
+    padding:20px;
+    border-radius:20px;
+    margin-bottom:20px;
+  }
 
-    .tabs {
-      display:flex;
-      gap:10px;
-      padding:15px;
-      overflow:auto;
-    }
-
-    .tab {
-      background:#222;
-      padding:10px 16px;
-      border-radius:20px;
-    }
-
-    .active {
-      background:#d60000;
-    }
-
-    .card {
-      background:#18181f;
-      margin:15px;
-      padding:18px;
-      border-radius:16px;
-    }
-
-    .tag {
-      color:#ff4444;
-      font-weight:bold;
-      margin-bottom:10px;
-    }
-
-    footer {
-      text-align:center;
-      color:#888;
-      padding:25px;
-    }
+  a{
+    color:white;
+    text-decoration:none;
+  }
   </style>
-</head>
+  </head>
+  <body>
 
-<body>
-
-<header>
   <h1>🥊 Fight Feed</h1>
-  <p>Boxing & MMA news in one place</p>
-</header>
+  <p>Live Boxing & MMA News</p>
+  `;
 
-<div class="tabs">
-  <div class="tab active">All</div>
-  <div class="tab">UFC</div>
-  <div class="tab">Boxing</div>
-  <div class="tab">MMA</div>
-  <div class="tab">Results</div>
-</div>
+  articles.forEach(article => {
+    html += `
+    <div class="card">
+      <h2>${article.title}</h2>
+      <p>${article.description || ""}</p>
+      <a href="${article.url}" target="_blank">Read More</a>
+    </div>
+    `;
+  });
 
-${newsHTML}
+  html += `
+  </body>
+  </html>
+  `;
 
-<footer>
-  Fight Feed © 2026
-</footer>
+  res.send(html);
 
-</body>
-</html>`);
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log('Server running');
+  console.log("Server running");
 });
