@@ -120,9 +120,11 @@ app.get("/", (req, res) => {
     .fight-date {
       color: #ccc;
       margin-top: 8px;
+      line-height: 1.4;
     }
 
-    .article a {
+    .article a,
+    .fight-card a {
       color: white;
       text-decoration: none;
       font-size: 20px;
@@ -133,6 +135,11 @@ app.get("/", (req, res) => {
       color: #aaa;
       margin-top: 8px;
       font-size: 14px;
+    }
+
+    .loading {
+      color: #ccc;
+      font-size: 18px;
     }
 
     .error {
@@ -150,10 +157,7 @@ app.get("/", (req, res) => {
       <img class="logo" src="${LOGO_PATH}">
       <h1>Fight Feed</h1>
     </div>
-
-    <div class="subtitle">
-      Live Boxing & MMA News
-    </div>
+    <div class="subtitle">Live Boxing & MMA News</div>
   </div>
 
   <div class="tabs">
@@ -166,88 +170,80 @@ app.get("/", (req, res) => {
 
   <div class="section">
     <h2>Upcoming Fights</h2>
-
-    <div class="fight-card">
-      <div class="fight-title">UFC Fight Night</div>
-      <div class="fight-date">
-        Upcoming card — check latest updates
-      </div>
-    </div>
-
-    <div class="fight-card">
-      <div class="fight-title">Boxing Main Event</div>
-      <div class="fight-date">
-        Upcoming fight night — details coming soon
-      </div>
-    </div>
-
-    <div class="fight-card">
-      <div class="fight-title">MMA Results & Fight Week</div>
-      <div class="fight-date">
-        Latest fight news below
-      </div>
-    </div>
+    <div id="fights" class="loading">Loading upcoming fights...</div>
   </div>
 
   <div class="section">
     <h2>Latest News</h2>
-    <div id="news">Loading news...</div>
+    <div id="news" class="loading">Loading news...</div>
   </div>
 
 <script>
-async function loadNews(event, searchTerm) {
-
-  document.getElementById("news").innerHTML = "Loading news...";
-
-  document
-    .querySelectorAll(".tab")
-    .forEach(btn => btn.classList.remove("active"));
-
-  event.target.classList.add("active");
-
+async function loadFights() {
   try {
-
-    const response = await fetch(
-      "/news?q=" + encodeURIComponent(searchTerm)
-    );
-
+    const response = await fetch("/fights");
     const data = await response.json();
 
     if (!data.articles || data.articles.length === 0) {
+      document.getElementById("fights").innerHTML =
+        "<div class='fight-card'><div class='fight-title'>Upcoming fight cards</div><div class='fight-date'>No live fight updates loaded right now. Check Latest News below.</div></div>";
+      return;
+    }
 
+    document.getElementById("fights").innerHTML =
+      data.articles.slice(0, 4).map(article => \`
+        <div class="fight-card">
+          <a href="\${article.url}" target="_blank">\${article.title}</a>
+          <div class="fight-date">
+            \${article.description || "Tap to view event details"}
+          </div>
+          <div class="source">
+            \${article.source.name || "Fight Feed"}
+          </div>
+        </div>
+      \`).join("");
+
+  } catch (err) {
+    document.getElementById("fights").innerHTML =
+      "<div class='fight-card'><div class='fight-title'>Upcoming fights unavailable</div><div class='fight-date'>Try refreshing the app.</div></div>";
+  }
+}
+
+async function loadNews(event, searchTerm) {
+  document.getElementById("news").innerHTML = "Loading news...";
+
+  document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
+  event.target.classList.add("active");
+
+  try {
+    const response = await fetch("/news?q=" + encodeURIComponent(searchTerm));
+    const data = await response.json();
+
+    if (!data.articles || data.articles.length === 0) {
       document.getElementById("news").innerHTML =
         "<h2>No articles loaded.</h2><div class='error'>" +
         JSON.stringify(data, null, 2) +
         "</div>";
-
       return;
     }
 
     document.getElementById("news").innerHTML =
       data.articles.map(article => \`
-
         <div class="article">
-
-          <a href="\${article.url}" target="_blank">
-            \${article.title}
-          </a>
-
-          <div class="source">
-            \${article.source.name || "Fight News"}
-          </div>
-
+          <a href="\${article.url}" target="_blank">\${article.title}</a>
+          <div class="source">\${article.source.name || "Fight News"}</div>
         </div>
-
       \`).join("");
 
   } catch (err) {
-
     document.getElementById("news").innerHTML =
       "<h2>No articles loaded.</h2><div class='error'>" +
       err.message +
       "</div>";
   }
 }
+
+loadFights();
 
 loadNews(
   { target: document.querySelector(".tab.active") },
@@ -261,11 +257,9 @@ loadNews(
 });
 
 app.get("/news", async (req, res) => {
-
   const query = req.query.q || "boxing mma ufc";
 
   try {
-
     const url =
       "https://gnews.io/api/v4/search?q=" +
       encodeURIComponent(query) +
@@ -276,12 +270,27 @@ app.get("/news", async (req, res) => {
     const data = await response.json();
 
     res.json(data);
-
   } catch (error) {
+    res.json({ error: error.message });
+  }
+});
 
-    res.json({
-      error: error.message
-    });
+app.get("/fights", async (req, res) => {
+  try {
+    const query = "upcoming UFC boxing fight card main event";
+
+    const url =
+      "https://gnews.io/api/v4/search?q=" +
+      encodeURIComponent(query) +
+      "&lang=en&max=8&apikey=" +
+      GNEWS_API_KEY;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    res.json(data);
+  } catch (error) {
+    res.json({ error: error.message });
   }
 });
 
