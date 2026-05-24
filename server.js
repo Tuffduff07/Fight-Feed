@@ -6,7 +6,7 @@ const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 
 app.use(express.static(__dirname));
 
-const LOGO_PATH = "/E0A332BD-43E5-43B9-81D0-145E57A73F69.png";
+const LOGO_PATH = "https://i.imgur.com/8Km9tLL.png";
 
 app.get("/manifest.json", (req, res) => {
   res.json({
@@ -35,6 +35,7 @@ app.get("/", (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#b30000">
+
   <style>
     body {
       margin: 0;
@@ -86,6 +87,7 @@ app.get("/", (req, res) => {
       padding: 14px 25px;
       border-radius: 30px;
       font-size: 20px;
+      cursor: pointer;
     }
 
     .active {
@@ -101,7 +103,8 @@ app.get("/", (req, res) => {
       margin-bottom: 15px;
     }
 
-    .fight-card, .article {
+    .fight-card,
+    .article {
       background: #121225;
       border-radius: 16px;
       padding: 18px;
@@ -139,6 +142,7 @@ app.get("/", (req, res) => {
     }
   </style>
 </head>
+
 <body>
 
   <div class="header">
@@ -146,15 +150,18 @@ app.get("/", (req, res) => {
       <img class="logo" src="${LOGO_PATH}">
       <h1>Fight Feed</h1>
     </div>
-    <div class="subtitle">Live Boxing & MMA News</div>
+
+    <div class="subtitle">
+      Live Boxing & MMA News
+    </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="loadNews('boxing mma ufc')">All</button>
-    <button class="tab" onclick="loadNews('ufc')">UFC</button>
-    <button class="tab" onclick="loadNews('boxing')">Boxing</button>
-    <button class="tab" onclick="loadNews('mma')">MMA</button>
-    <button class="tab" onclick="loadNews('fight results boxing mma')">Results</button>
+    <button class="tab active" onclick="loadNews(event,'boxing mma ufc')">All</button>
+    <button class="tab" onclick="loadNews(event,'ufc')">UFC</button>
+    <button class="tab" onclick="loadNews(event,'boxing')">Boxing</button>
+    <button class="tab" onclick="loadNews(event,'mma')">MMA</button>
+    <button class="tab" onclick="loadNews(event,'fight results boxing mma')">Results</button>
   </div>
 
   <div class="section">
@@ -162,17 +169,23 @@ app.get("/", (req, res) => {
 
     <div class="fight-card">
       <div class="fight-title">UFC Fight Night</div>
-      <div class="fight-date">Upcoming card — check latest updates</div>
+      <div class="fight-date">
+        Upcoming card — check latest updates
+      </div>
     </div>
 
     <div class="fight-card">
       <div class="fight-title">Boxing Main Event</div>
-      <div class="fight-date">Upcoming fight night — details coming soon</div>
+      <div class="fight-date">
+        Upcoming fight night — details coming soon
+      </div>
     </div>
 
     <div class="fight-card">
       <div class="fight-title">MMA Results & Fight Week</div>
-      <div class="fight-date">Latest fight news below</div>
+      <div class="fight-date">
+        Latest fight news below
+      </div>
     </div>
   </div>
 
@@ -182,36 +195,64 @@ app.get("/", (req, res) => {
   </div>
 
 <script>
-async function loadNews(searchTerm) {
+async function loadNews(event, searchTerm) {
+
   document.getElementById("news").innerHTML = "Loading news...";
 
-  document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
+  document
+    .querySelectorAll(".tab")
+    .forEach(btn => btn.classList.remove("active"));
+
   event.target.classList.add("active");
 
   try {
-    const response = await fetch("/news?q=" + encodeURIComponent(searchTerm));
+
+    const response = await fetch(
+      "/news?q=" + encodeURIComponent(searchTerm)
+    );
+
     const data = await response.json();
 
     if (!data.articles || data.articles.length === 0) {
+
       document.getElementById("news").innerHTML =
-        "<h2>No articles loaded.</h2><div class='error'>" + JSON.stringify(data, null, 2) + "</div>";
+        "<h2>No articles loaded.</h2><div class='error'>" +
+        JSON.stringify(data, null, 2) +
+        "</div>";
+
       return;
     }
 
-    document.getElementById("news").innerHTML = data.articles.map(article => \`
-      <div class="article">
-        <a href="\${article.url}" target="_blank">\${article.title}</a>
-        <div class="source">\${article.source.name || "Fight News"}</div>
-      </div>
-    \`).join("");
+    document.getElementById("news").innerHTML =
+      data.articles.map(article => \`
+
+        <div class="article">
+
+          <a href="\${article.url}" target="_blank">
+            \${article.title}
+          </a>
+
+          <div class="source">
+            \${article.source.name || "Fight News"}
+          </div>
+
+        </div>
+
+      \`).join("");
 
   } catch (err) {
+
     document.getElementById("news").innerHTML =
-      "<h2>No articles loaded.</h2><div class='error'>" + err.message + "</div>";
+      "<h2>No articles loaded.</h2><div class='error'>" +
+      err.message +
+      "</div>";
   }
 }
 
-loadNews("boxing mma ufc");
+loadNews(
+  { target: document.querySelector(".tab.active") },
+  "boxing mma ufc"
+);
 </script>
 
 </body>
@@ -220,9 +261,11 @@ loadNews("boxing mma ufc");
 });
 
 app.get("/news", async (req, res) => {
+
   const query = req.query.q || "boxing mma ufc";
 
   try {
+
     const url =
       "https://gnews.io/api/v4/search?q=" +
       encodeURIComponent(query) +
@@ -233,8 +276,12 @@ app.get("/news", async (req, res) => {
     const data = await response.json();
 
     res.json(data);
+
   } catch (error) {
-    res.json({ error: error.message });
+
+    res.json({
+      error: error.message
+    });
   }
 });
 
