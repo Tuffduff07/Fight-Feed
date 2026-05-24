@@ -180,8 +180,11 @@ Loading breaking news...
 Fight Alerts
 </div>
 
-<button class="notifyBtn" onclick="enableNotifications()">
-Enable Push Notifications
+<button class="notifyBtn"
+onclick="alert('Fight alerts are coming soon')">
+
+Fight alerts coming soon
+
 </button>
 
 </div>
@@ -241,28 +244,6 @@ Loading news...
 </div>
 
 <script>
-
-async function enableNotifications(){
-
-if(!("Notification" in window)){
-
-alert("Notifications not supported");
-
-return;
-
-}
-
-const permission = await Notification.requestPermission();
-
-if(permission === "granted"){
-
-new Notification("Fight Feed Alerts Enabled 🔥",{
-body:"You will now receive breaking fight news."
-});
-
-}
-
-}
 
 const targetDate = new Date();
 targetDate.setDate(targetDate.getDate()+5);
