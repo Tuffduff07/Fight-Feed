@@ -9,11 +9,13 @@ const LOGO_PATH = "https://i.imgur.com/8Km9tLL.png";
 app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
+
 res.send(`
 
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>Fight Feed</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -133,17 +135,16 @@ font-size:18px;
 background:red;
 }
 
-.adBox{
-background:#1a1a2d;
-padding:25px;
+.notifyBtn{
+width:100%;
+padding:18px;
+background:red;
+border:none;
+color:white;
+font-size:20px;
+font-weight:bold;
 border-radius:15px;
-text-align:center;
-border:2px dashed #444;
-}
-
-.adTitle{
-font-size:24px;
-margin-bottom:10px;
+margin-top:15px;
 }
 
 </style>
@@ -155,40 +156,83 @@ margin-bottom:10px;
 <div class="header">
 
 <div class="logoRow">
+
 <img class="logo" src="${LOGO_PATH}">
+
 <div>
 <div class="title">Fight Feed</div>
 <div class="subtitle">Live MMA & Boxing News</div>
 </div>
+
 </div>
 
 </div>
 
 <div class="breaking">
-<span id="breakingText">Loading breaking news...</span>
+<span id="breakingText">
+Loading breaking news...
+</span>
 </div>
 
 <div class="section">
 
-<div class="sectionTitle">Next Big Fight</div>
+<div class="sectionTitle">
+Fight Alerts
+</div>
+
+<button class="notifyBtn" onclick="enableNotifications()">
+Enable Push Notifications
+</button>
+
+</div>
+
+<div class="section">
+
+<div class="sectionTitle">
+Next Big Fight
+</div>
 
 <div class="card">
-<div>UFC Main Event Countdown</div>
+
+<div>
+UFC Main Event Countdown
+</div>
+
 <div class="countdown" id="countdown"></div>
+
 </div>
 
 </div>
 
 <div class="tabs">
-<button class="tab active" onclick="loadNews(event,'boxing mma ufc')">All</button>
-<button class="tab" onclick="loadNews(event,'ufc')">UFC</button>
-<button class="tab" onclick="loadNews(event,'boxing')">Boxing</button>
-<button class="tab" onclick="loadNews(event,'mma')">MMA</button>
+
+<button class="tab active"
+onclick="loadNews(event,'boxing mma ufc')">
+All
+</button>
+
+<button class="tab"
+onclick="loadNews(event,'ufc')">
+UFC
+</button>
+
+<button class="tab"
+onclick="loadNews(event,'boxing')">
+Boxing
+</button>
+
+<button class="tab"
+onclick="loadNews(event,'mma')">
+MMA
+</button>
+
 </div>
 
 <div class="section">
 
-<div class="sectionTitle">Latest News</div>
+<div class="sectionTitle">
+Latest News
+</div>
 
 <div id="news">
 Loading news...
@@ -196,28 +240,29 @@ Loading news...
 
 </div>
 
-<div class="section">
-
-<div class="sectionTitle">Sponsored</div>
-
-<div class="adBox">
-<div class="adTitle">Advertisement Space</div>
-<div>
-Future monetisation area for:
-<br><br>
-• Google Ads
-<br>
-• DAZN affiliate links
-<br>
-• Fight gear sponsors
-<br>
-• Betting partners
-</div>
-</div>
-
-</div>
-
 <script>
+
+async function enableNotifications(){
+
+if(!("Notification" in window)){
+
+alert("Notifications not supported");
+
+return;
+
+}
+
+const permission = await Notification.requestPermission();
+
+if(permission === "granted"){
+
+new Notification("Fight Feed Alerts Enabled 🔥",{
+body:"You will now receive breaking fight news."
+});
+
+}
+
+}
 
 const targetDate = new Date();
 targetDate.setDate(targetDate.getDate()+5);
@@ -225,10 +270,13 @@ targetDate.setDate(targetDate.getDate()+5);
 function updateCountdown(){
 
 const now = new Date();
+
 const diff = targetDate - now;
 
 const days = Math.floor(diff / (1000*60*60*24));
+
 const hours = Math.floor((diff / (1000*60*60)) % 24);
+
 const mins = Math.floor((diff / (1000*60)) % 60);
 
 document.getElementById("countdown").innerHTML =
@@ -237,13 +285,16 @@ days + "d " + hours + "h " + mins + "m";
 }
 
 setInterval(updateCountdown,1000);
+
 updateCountdown();
 
 async function loadBreaking(){
 
 try{
 
-const response = await fetch('/news?q=breaking ufc boxing mma');
+const response =
+await fetch('/news?q=breaking ufc boxing mma');
+
 const data = await response.json();
 
 if(data.articles && data.articles.length > 0){
@@ -275,7 +326,8 @@ document.getElementById("news").innerHTML =
 
 try{
 
-const response = await fetch('/news?q='+encodeURIComponent(search));
+const response =
+await fetch('/news?q='+encodeURIComponent(search));
 
 const data = await response.json();
 
@@ -289,6 +341,7 @@ return;
 }
 
 document.getElementById("news").innerHTML =
+
 data.articles.map(article => \`
 
 <div class="card">
@@ -327,6 +380,7 @@ loadNews(
 </html>
 
 `);
+
 });
 
 app.get("/news", async (req, res) => {
@@ -342,13 +396,16 @@ encodeURIComponent(query) +
 GNEWS_API_KEY;
 
 const response = await fetch(url);
+
 const data = await response.json();
 
 res.json(data);
 
 }catch(error){
 
-res.json({error:error.message});
+res.json({
+error:error.message
+});
 
 }
 
