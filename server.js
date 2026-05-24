@@ -160,37 +160,6 @@ border:2px dashed #444;
 margin-top:20px;
 }
 
-.rankGrid{
-display:grid;
-gap:12px;
-}
-
-.rankItem{
-background:#111122;
-padding:15px;
-border-radius:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-left:4px solid red;
-}
-
-.rankName{
-font-size:19px;
-font-weight:bold;
-}
-
-.rankTag{
-color:#aaa;
-font-size:14px;
-}
-
-.rankNumber{
-font-size:22px;
-font-weight:bold;
-color:#ff4444;
-}
-
 </style>
 
 </head>
@@ -254,28 +223,28 @@ UFC Main Event Countdown
 <div class="tabs">
 
 <button class="tab active"
-onclick="showSection(event,'newsSection','boxing mma ufc')">
-News
+onclick="loadNews(event,'boxing mma ufc')">
+All
 </button>
 
 <button class="tab"
-onclick="showSection(event,'ufcSection','ufc')">
+onclick="loadNews(event,'ufc')">
 UFC
 </button>
 
 <button class="tab"
-onclick="showSection(event,'boxingSection','boxing')">
+onclick="loadNews(event,'boxing')">
 Boxing
 </button>
 
 <button class="tab"
-onclick="showRankings(event)">
-Rankings
+onclick="loadNews(event,'mma')">
+MMA
 </button>
 
 </div>
 
-<div class="section" id="newsSection">
+<div class="section">
 
 <div class="sectionTitle">
 Latest News
@@ -297,99 +266,155 @@ Google AdSense Ready 🔥
 
 </div>
 
-<div class="section" id="ufcSection" style="display:none;">
+<script>
 
-<div class="sectionTitle">
-UFC News
+const targetDate = new Date();
+targetDate.setDate(targetDate.getDate()+5);
+
+function updateCountdown(){
+
+const now = new Date();
+
+const diff = targetDate - now;
+
+const days = Math.floor(diff / (1000*60*60*24));
+
+const hours = Math.floor((diff / (1000*60*60)) % 24);
+
+const mins = Math.floor((diff / (1000*60)) % 60);
+
+document.getElementById("countdown").innerHTML =
+days + "d " + hours + "h " + mins + "m";
+
+}
+
+setInterval(updateCountdown,1000);
+
+updateCountdown();
+
+async function loadBreaking(){
+
+try{
+
+const response =
+await fetch('/news?q=breaking ufc boxing mma');
+
+const data = await response.json();
+
+if(data.articles && data.articles.length > 0){
+
+document.getElementById("breakingText").innerHTML =
+data.articles[0].title;
+
+}
+
+}catch(err){
+
+document.getElementById("breakingText").innerHTML =
+"Latest fight news unavailable";
+
+}
+
+}
+
+async function loadNews(event,search){
+
+document.querySelectorAll(".tab").forEach(btn=>{
+btn.classList.remove("active");
+});
+
+event.target.classList.add("active");
+
+document.getElementById("news").innerHTML =
+"Loading news...";
+
+try{
+
+const response =
+await fetch('/news?q='+encodeURIComponent(search));
+
+const data = await response.json();
+
+if(!data.articles || data.articles.length === 0){
+
+document.getElementById("news").innerHTML =
+"No articles available";
+
+return;
+
+}
+
+document.getElementById("news").innerHTML =
+
+data.articles.map(article => \`
+
+<div class="card">
+
+<a href="\${article.url}" target="_blank">
+\${article.title}
+</a>
+
+<div class="source">
+\${article.source.name || "Fight Feed"}
 </div>
 
-<div id="ufcNews">
-Loading UFC news...
 </div>
 
-</div>
+\`).join("");
 
-<div class="section" id="boxingSection" style="display:none;">
+}catch(err){
 
-<div class="sectionTitle">
-Boxing News
-</div>
+document.getElementById("news").innerHTML =
+"Error loading news";
 
-<div id="boxingNews">
-Loading boxing news...
-</div>
+}
 
-</div>
+}
 
-<div class="section" id="rankingsSection" style="display:none;">
+loadBreaking();
 
-<div class="sectionTitle">
-UFC Champions
-</div>
+loadNews(
+{target:document.querySelector(".tab.active")},
+'boxing mma ufc'
+);
 
-<div class="rankGrid">
+</script>
 
-<div class="rankItem">
-<div>
-<div class="rankName">Jon Jones</div>
-<div class="rankTag">Heavyweight Champion</div>
-</div>
-<div class="rankNumber">HW</div>
-</div>
+</body>
+</html>
 
-<div class="rankItem">
-<div>
-<div class="rankName">Alex Pereira</div>
-<div class="rankTag">Light Heavyweight Champion</div>
-</div>
-<div class="rankNumber">LHW</div>
-</div>
+`);
 
-<div class="rankItem">
-<div>
-<div class="rankName">Dricus du Plessis</div>
-<div class="rankTag">Middleweight Champion</div>
-</div>
-<div class="rankNumber">MW</div>
-</div>
+});
 
-<div class="rankItem">
-<div>
-<div class="rankName">Islam Makhachev</div>
-<div class="rankTag">Lightweight Champion</div>
-</div>
-<div class="rankNumber">LW</div>
-</div>
+app.get("/news", async (req, res) => {
 
-<div class="rankItem">
-<div>
-<div class="rankName">Ilia Topuria</div>
-<div class="rankTag">Featherweight Champion</div>
-</div>
-<div class="rankNumber">FW</div>
-</div>
+const query = req.query.q || "boxing mma ufc";
 
-</div>
+try{
 
-<br>
+const url =
+"https://gnews.io/api/v4/search?q=" +
+encodeURIComponent(query) +
+"&lang=en&max=10&apikey=" +
+GNEWS_API_KEY;
 
-<div class="sectionTitle">
-Boxing Pound-for-Pound
-</div>
+const response = await fetch(url);
 
-<div class="rankGrid">
+const data = await response.json();
 
-<div class="rankItem">
-<div>
-<div class="rankName">Oleksandr Usyk</div>
-<div class="rankTag">Heavyweight</div>
-</div>
-<div class="rankNumber">#1</div>
-</div>
+res.json(data);
 
-<div class="rankItem">
-<div>
-<div class="rankName">Naoya Inoue</div>
-<div class="rankTag">Super Bantamweight</div>
-</div>
-<div class="rank
+}catch(error){
+
+res.json({
+error:error.message
+});
+
+}
+
+});
+
+app.listen(PORT, () => {
+console.log("Fight Feed running");
+});
