@@ -1,5 +1,4 @@
 const express = require("express");
-const fetch = require("node-fetch");
 
 const app = express();
 
@@ -9,10 +8,12 @@ const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 app.use(express.static(__dirname));
 
 app.get("/", async (req, res) => {
+
   let articles = [];
   let error = "";
 
   try {
+
     const response = await fetch(
       `https://gnews.io/api/v4/search?q=boxing%20OR%20mma%20OR%20ufc&lang=en&max=10&apikey=${GNEWS_API_KEY}`
     );
@@ -24,14 +25,19 @@ app.get("/", async (req, res) => {
     } else {
       error = JSON.stringify(data, null, 2);
     }
+
   } catch (err) {
+
     error = err.message;
+
   }
 
   const html = `
   <!DOCTYPE html>
   <html>
+
   <head>
+
     <title>Fight Feed</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,6 +47,7 @@ app.get("/", async (req, res) => {
     <link rel="manifest" href="/manifest.json">
 
     <style>
+
       body {
         margin: 0;
         background: #050510;
@@ -94,7 +101,6 @@ app.get("/", async (req, res) => {
         border-radius: 22px;
         overflow: hidden;
         margin-bottom: 22px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.4);
       }
 
       .card img {
@@ -125,7 +131,9 @@ app.get("/", async (req, res) => {
         text-decoration: none;
         font-weight: bold;
       }
+
     </style>
+
   </head>
 
   <body>
@@ -147,46 +155,65 @@ app.get("/", async (req, res) => {
 
       ${
         articles.length > 0
-          ? articles.map(article => `
-            <div class="card">
 
-              ${article.image ? `<img src="${article.image}" />` : ""}
+        ? articles.map(article => `
 
-              <div class="content">
-                <h2>${article.title}</h2>
+          <div class="card">
 
-                <p>${article.description || ""}</p>
+            ${article.image ? `<img src="${article.image}" />` : ""}
 
-                <a class="readmore" href="${article.url}" target="_blank">
-                  Read Full Story →
-                </a>
-              </div>
+            <div class="content">
+
+              <h2>${article.title}</h2>
+
+              <p>${article.description || ""}</p>
+
+              <a class="readmore" href="${article.url}" target="_blank">
+                Read Full Story →
+              </a>
 
             </div>
-          `).join("")
-          : `
-            <h2>No articles loaded.</h2>
-            <pre>${error}</pre>
-          `
+
+          </div>
+
+        `).join("")
+
+        : `
+
+          <h2>No articles loaded.</h2>
+
+          <pre>${error}</pre>
+
+        `
       }
 
     </div>
 
   </body>
+
   </html>
   `;
 
   res.send(html);
+
 });
 
 app.get("/manifest.json", (req, res) => {
+
   res.json({
+
     name: "Fight Feed",
+
     short_name: "FightFeed",
+
     start_url: "/",
+
     display: "standalone",
+
     background_color: "#050510",
+
     theme_color: "#b30000",
+
     icons: [
       {
         src: "/E0A332BD-43E5-43B9-81D0-196FE97ABA84.png",
@@ -194,9 +221,13 @@ app.get("/manifest.json", (req, res) => {
         type: "image/png"
       }
     ]
+
   });
+
 });
 
 app.listen(PORT, () => {
+
   console.log("Server running on port " + PORT);
+
 });
