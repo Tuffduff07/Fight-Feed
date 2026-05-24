@@ -18,8 +18,12 @@ res.send(`
 
 <title>Fight Feed</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7863167684906431"
-     crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script async
+src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7863167684906431"
+crossorigin="anonymous"></script>
+
 <style>
 
 body{
@@ -147,6 +151,15 @@ border-radius:15px;
 margin-top:15px;
 }
 
+.adBox{
+background:#1a1a2d;
+padding:25px;
+border-radius:15px;
+text-align:center;
+border:2px dashed #444;
+margin-top:20px;
+}
+
 </style>
 
 </head>
@@ -239,6 +252,16 @@ Latest News
 
 <div id="news">
 Loading news...
+</div>
+
+<div class="adBox">
+
+Advertisement Space
+
+<br><br>
+
+Google AdSense Ready 🔥
+
 </div>
 
 </div>
