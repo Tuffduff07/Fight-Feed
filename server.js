@@ -1,7 +1,191 @@
 const express = require("express");
+const fetch = require("node-fetch");
+
 const app = express();
 
-const API_KEY = process.env.GNEWS_API_KEY;
+const PORT = process.env.PORT || 3000;
+const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
+
+app.use(express.static("public"));
+
+app.get("/", async (req, res) => {
+  let articles = [];
+  let error = "";
+
+  try {
+    const response = await fetch(
+      `https://gnews.io/api/v4/search?q=boxing%20OR%20mma%20OR%20ufc&lang=en&max=10&apikey=${GNEWS_API_KEY}`
+    );
+
+    const data = await response.json();
+
+    if (data.articles) {
+      articles = data.articles;
+    } else {
+      error = JSON.stringify(data, null, 2);
+    }
+  } catch (err) {
+    error = err.message;
+  }
+
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Fight Feed</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#b30000">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <style>
+      body {
+        margin: 0;
+        background: #050510;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+
+      .header {
+        background: linear-gradient(135deg,#cc0000,#200000,#000);
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 52px;
+        color: #ff4d4d;
+      }
+
+      .header p {
+        color: #ddd;
+        margin-top: 10px;
+        font-size: 18px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        padding: 14px;
+        overflow-x: auto;
+      }
+
+      .tab {
+        background: #1b1b1b;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 999px;
+        font-size: 18px;
+        white-space: nowrap;
+      }
+
+      .active {
+        background: #ff0000;
+      }
+
+      .container {
+        padding: 14px;
+      }
+
+      .card {
+        background: #11111c;
+        border-radius: 22px;
+        overflow: hidden;
+        margin-bottom: 22px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      }
+
+      .card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .content h2 {
+        margin-top: 0;
+        font-size: 22px;
+        line-height: 1.3;
+      }
+
+      .content p {
+        color: #ccc;
+        line-height: 1.5;
+      }
+
+      .readmore {
+        display: inline-block;
+        margin-top: 14px;
+        color: #ff4d4d;
+        text-decoration: none;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="header">
+      <h1>🥊 Fight Feed</h1>
+      <p>Live Boxing & MMA News</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">All</div>
+      <div class="tab">UFC</div>
+      <div class="tab">Boxing</div>
+      <div class="tab">MMA</div>
+      <div class="tab">Results</div>
+    </div>
+
+    <div class="container">
+
+      ${
+        articles.length > 0
+          ? articles
+              .map(
+                (article) => `
+          <div class="card">
+
+            ${
+              article.image
+                ? `<img src="${article.image}" />`
+                : ""
+            }
+
+            <div class="content">
+              <h2>${article.title}</h2>
+
+              <p>${article.description || ""}</p>
+
+              <a class="readmore" href="${article.url}" target="_blank">
+                Read Full Story →
+              </a>
+            </div>
+
+          </div>
+        `
+              )
+              .join("")
+          : `
+          <h2>No articles loaded.</h2>
+          <pre>${error}</pre>
+        `
+      }
+
+    </div>
+
+  </body>
+  </html>
+  `;
+
+  res.send(html);
+});
 
 app.get("/manifest.json", (req, res) => {
   res.json({
@@ -11,10 +195,9 @@ app.get("/manifest.json", (req, res) => {
     display: "standalone",
     background_color: "#050510",
     theme_color: "#b30000",
-    orientation: "portrait",
     icons: [
       {
-        src: "https://cdn-icons-png.flaticon.com/512/889/889455.png",
+        src: "/logo.png",
         sizes: "512x512",
         type: "image/png"
       }
@@ -22,236 +205,6 @@ app.get("/manifest.json", (req, res) => {
   });
 });
 
-app.get("/", async (req, res) => {
-
-  try {
-
-    const category = req.query.category || "boxing";
-
-    let searchQuery = "boxing";
-
-    if (category === "ufc") {
-      searchQuery = "UFC";
-    }
-
-    if (category === "mma") {
-      searchQuery = "MMA";
-    }
-
-    if (category === "results") {
-      searchQuery = "boxing results OR mma results";
-    }
-
-    const url =
-      `https://gnews.io/api/v4/search?q=${encodeURIComponent(searchQuery)}&lang=en&max=10&apikey=${API_KEY}`;
-
-    const response = await fetch(url);
-
-    const data = await response.json();
-
-    const articles = data.articles || [];
-
-    const newsHtml = articles.map(article => `
-
-      <div style="
-        background:#111122;
-        border-radius:20px;
-        overflow:hidden;
-        margin-bottom:25px;
-      ">
-
-        ${article.image ? `
-          <img
-            src="${article.image}"
-            style="
-              width:100%;
-              height:220px;
-              object-fit:cover;
-            "
-          >
-        ` : ""}
-
-        <div style="padding:20px;">
-
-          <h2 style="
-            font-size:32px;
-            color:white;
-          ">
-            ${article.title}
-          </h2>
-
-          <p style="
-            color:#cccccc;
-            line-height:1.5;
-            font-size:20px;
-          ">
-            ${article.description || ""}
-          </p>
-
-          <a
-            href="${article.url}"
-            target="_blank"
-            style="
-              display:inline-block;
-              margin-top:20px;
-              color:#ff4444;
-              font-weight:bold;
-              font-size:22px;
-              text-decoration:none;
-            "
-          >
-            Read Full Story →
-          </a>
-
-        </div>
-
-      </div>
-
-    `).join("");
-
-    res.send(`
-
-      <html>
-
-      <head>
-
-        <title>Fight Feed</title>
-
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="manifest" href="/manifest.json">
-
-        <meta name="theme-color" content="#b30000">
-
-        <meta name="apple-mobile-web-app-capable" content="yes">
-
-        <meta name="apple-mobile-web-app-title" content="Fight Feed">
-
-      </head>
-
-      <body style="
-        margin:0;
-        background:#050510;
-        color:white;
-        font-family:Arial;
-      ">
-
-        <div style="
-          background:linear-gradient(135deg,#b30000,#050510);
-          padding:40px 25px;
-        ">
-
-          <h1 style="
-            color:#ff4444;
-            font-size:64px;
-            margin:0;
-          ">
-            🥊 Fight Feed
-          </h1>
-
-          <p style="
-            font-size:28px;
-            color:#dddddd;
-          ">
-            Live Boxing & MMA News
-          </p>
-
-        </div>
-
-        <div style="
-          display:flex;
-          gap:15px;
-          overflow-x:auto;
-          padding:20px;
-        ">
-
-          <a href="/"
-            style="
-              background:#ff0000;
-              color:white;
-              padding:14px 24px;
-              border-radius:999px;
-              text-decoration:none;
-              font-size:22px;
-            ">
-            All
-          </a>
-
-          <a href="/?category=ufc"
-            style="
-              background:#222;
-              color:white;
-              padding:14px 24px;
-              border-radius:999px;
-              text-decoration:none;
-              font-size:22px;
-            ">
-            UFC
-          </a>
-
-          <a href="/?category=boxing"
-            style="
-              background:#222;
-              color:white;
-              padding:14px 24px;
-              border-radius:999px;
-              text-decoration:none;
-              font-size:22px;
-            ">
-            Boxing
-          </a>
-
-          <a href="/?category=mma"
-            style="
-              background:#222;
-              color:white;
-              padding:14px 24px;
-              border-radius:999px;
-              text-decoration:none;
-              font-size:22px;
-            ">
-            MMA
-          </a>
-
-        </div>
-
-        <div style="padding:20px;">
-          ${newsHtml}
-        </div>
-
-      </body>
-
-      </html>
-
-    `);
-
-  } catch (error) {
-
-    res.send(`
-      <body style="
-        background:#050510;
-        color:white;
-        font-family:Arial;
-        padding:30px;
-      ">
-
-        <h1>🥊 Fight Feed</h1>
-
-        <h2 style="color:red;">
-          Error Loading News
-        </h2>
-
-        <pre>${error.message}</pre>
-
-      </body>
-    `);
-
-  }
-
-});
-
-const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log("Server running");
+  console.log("Server running on port " + PORT);
 });
