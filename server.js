@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 
-app.use(express.static("public"));
+app.use(express.static(__dirname));
 
 app.get("/", async (req, res) => {
   let articles = [];
@@ -147,35 +147,27 @@ app.get("/", async (req, res) => {
 
       ${
         articles.length > 0
-          ? articles
-              .map(
-                (article) => `
-          <div class="card">
+          ? articles.map(article => `
+            <div class="card">
 
-            ${
-              article.image
-                ? `<img src="${article.image}" />`
-                : ""
-            }
+              ${article.image ? `<img src="${article.image}" />` : ""}
 
-            <div class="content">
-              <h2>${article.title}</h2>
+              <div class="content">
+                <h2>${article.title}</h2>
 
-              <p>${article.description || ""}</p>
+                <p>${article.description || ""}</p>
 
-              <a class="readmore" href="${article.url}" target="_blank">
-                Read Full Story →
-              </a>
+                <a class="readmore" href="${article.url}" target="_blank">
+                  Read Full Story →
+                </a>
+              </div>
+
             </div>
-
-          </div>
-        `
-              )
-              .join("")
+          `).join("")
           : `
-          <h2>No articles loaded.</h2>
-          <pre>${error}</pre>
-        `
+            <h2>No articles loaded.</h2>
+            <pre>${error}</pre>
+          `
       }
 
     </div>
@@ -197,7 +189,7 @@ app.get("/manifest.json", (req, res) => {
     theme_color: "#b30000",
     icons: [
       {
-        src: "/logo.png",
+        src: "/E0A332BD-43E5-43B9-81D0-196FE97ABA84.png",
         sizes: "512x512",
         type: "image/png"
       }
