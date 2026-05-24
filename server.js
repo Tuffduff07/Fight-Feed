@@ -4,296 +4,356 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 
-app.use(express.static(__dirname));
-
 const LOGO_PATH = "https://i.imgur.com/8Km9tLL.png";
 
-app.get("/manifest.json", (req, res) => {
-  res.json({
-    name: "Fight Feed",
-    short_name: "FightFeed",
-    start_url: "/",
-    display: "standalone",
-    background_color: "#050510",
-    theme_color: "#b30000",
-    icons: [
-      {
-        src: LOGO_PATH,
-        sizes: "512x512",
-        type: "image/png"
-      }
-    ]
-  });
-});
+app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
-  res.send(`
+res.send(`
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Fight Feed</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#b30000">
+<title>Fight Feed</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #050510;
-      color: white;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .header {
-      background: linear-gradient(135deg, #b30000, #050510);
-      padding: 35px 25px;
-    }
+<style>
 
-    .title-row {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
+body{
+margin:0;
+font-family:Arial;
+background:#050510;
+color:white;
+}
 
-    .logo {
-      width: 70px;
-      height: 70px;
-      border-radius: 14px;
-    }
+.header{
+padding:30px 20px;
+background:linear-gradient(135deg,#b30000,#050510);
+}
 
-    h1 {
-      font-size: 44px;
-      margin: 0;
-      color: #ff4a4a;
-    }
+.logoRow{
+display:flex;
+align-items:center;
+gap:15px;
+}
 
-    .subtitle {
-      font-size: 22px;
-      margin-top: 20px;
-    }
+.logo{
+width:70px;
+height:70px;
+border-radius:15px;
+}
 
-    .tabs {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding: 20px;
-      background: #070716;
-    }
+.title{
+font-size:42px;
+font-weight:bold;
+color:#ff4444;
+}
 
-    .tab {
-      background: #222;
-      color: white;
-      border: none;
-      padding: 14px 25px;
-      border-radius: 30px;
-      font-size: 20px;
-      cursor: pointer;
-    }
+.subtitle{
+margin-top:10px;
+font-size:20px;
+color:#ddd;
+}
 
-    .active {
-      background: red;
-    }
+.breaking{
+background:red;
+padding:12px;
+font-weight:bold;
+overflow:hidden;
+white-space:nowrap;
+}
 
-    .section {
-      padding: 20px;
-    }
+.breaking span{
+display:inline-block;
+padding-left:100%;
+animation:scroll 18s linear infinite;
+}
 
-    h2 {
-      font-size: 28px;
-      margin-bottom: 15px;
-    }
+@keyframes scroll{
+0%{transform:translateX(0);}
+100%{transform:translateX(-100%);}
+}
 
-    .fight-card,
-    .article {
-      background: #121225;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 15px;
-      border-left: 5px solid red;
-    }
+.section{
+padding:20px;
+}
 
-    .fight-title {
-      font-size: 21px;
-      font-weight: bold;
-    }
+.sectionTitle{
+font-size:28px;
+margin-bottom:15px;
+}
 
-    .fight-date {
-      color: #ccc;
-      margin-top: 8px;
-      line-height: 1.4;
-    }
+.card{
+background:#111122;
+padding:18px;
+border-radius:15px;
+margin-bottom:15px;
+border-left:5px solid red;
+}
 
-    .article a,
-    .fight-card a {
-      color: white;
-      text-decoration: none;
-      font-size: 20px;
-      font-weight: bold;
-    }
+.card a{
+color:white;
+text-decoration:none;
+font-size:20px;
+font-weight:bold;
+}
 
-    .source {
-      color: #aaa;
-      margin-top: 8px;
-      font-size: 14px;
-    }
+.source{
+margin-top:8px;
+color:#aaa;
+font-size:14px;
+}
 
-    .loading {
-      color: #ccc;
-      font-size: 18px;
-    }
+.countdown{
+font-size:30px;
+font-weight:bold;
+color:#ff4444;
+margin-top:10px;
+}
 
-    .error {
-      color: #ffb3b3;
-      white-space: pre-wrap;
-      font-family: monospace;
-    }
-  </style>
+.tabs{
+display:flex;
+gap:10px;
+overflow-x:auto;
+padding:15px;
+background:#070716;
+}
+
+.tab{
+background:#222;
+border:none;
+color:white;
+padding:12px 20px;
+border-radius:30px;
+font-size:18px;
+}
+
+.active{
+background:red;
+}
+
+.adBox{
+background:#1a1a2d;
+padding:25px;
+border-radius:15px;
+text-align:center;
+border:2px dashed #444;
+}
+
+.adTitle{
+font-size:24px;
+margin-bottom:10px;
+}
+
+</style>
+
 </head>
 
 <body>
 
-  <div class="header">
-    <div class="title-row">
-      <img class="logo" src="${LOGO_PATH}">
-      <h1>Fight Feed</h1>
-    </div>
-    <div class="subtitle">Live Boxing & MMA News</div>
-  </div>
+<div class="header">
 
-  <div class="tabs">
-    <button class="tab active" onclick="loadNews(event,'boxing mma ufc')">All</button>
-    <button class="tab" onclick="loadNews(event,'ufc')">UFC</button>
-    <button class="tab" onclick="loadNews(event,'boxing')">Boxing</button>
-    <button class="tab" onclick="loadNews(event,'mma')">MMA</button>
-    <button class="tab" onclick="loadNews(event,'fight results boxing mma')">Results</button>
-  </div>
+<div class="logoRow">
+<img class="logo" src="${LOGO_PATH}">
+<div>
+<div class="title">Fight Feed</div>
+<div class="subtitle">Live MMA & Boxing News</div>
+</div>
+</div>
 
-  <div class="section">
-    <h2>Upcoming Fights</h2>
-    <div id="fights" class="loading">Loading upcoming fights...</div>
-  </div>
+</div>
 
-  <div class="section">
-    <h2>Latest News</h2>
-    <div id="news" class="loading">Loading news...</div>
-  </div>
+<div class="breaking">
+<span id="breakingText">Loading breaking news...</span>
+</div>
+
+<div class="section">
+
+<div class="sectionTitle">Next Big Fight</div>
+
+<div class="card">
+<div>UFC Main Event Countdown</div>
+<div class="countdown" id="countdown"></div>
+</div>
+
+</div>
+
+<div class="tabs">
+<button class="tab active" onclick="loadNews(event,'boxing mma ufc')">All</button>
+<button class="tab" onclick="loadNews(event,'ufc')">UFC</button>
+<button class="tab" onclick="loadNews(event,'boxing')">Boxing</button>
+<button class="tab" onclick="loadNews(event,'mma')">MMA</button>
+</div>
+
+<div class="section">
+
+<div class="sectionTitle">Latest News</div>
+
+<div id="news">
+Loading news...
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="sectionTitle">Sponsored</div>
+
+<div class="adBox">
+<div class="adTitle">Advertisement Space</div>
+<div>
+Future monetisation area for:
+<br><br>
+• Google Ads
+<br>
+• DAZN affiliate links
+<br>
+• Fight gear sponsors
+<br>
+• Betting partners
+</div>
+</div>
+
+</div>
 
 <script>
-async function loadFights() {
-  try {
-    const response = await fetch("/fights");
-    const data = await response.json();
 
-    if (!data.articles || data.articles.length === 0) {
-      document.getElementById("fights").innerHTML =
-        "<div class='fight-card'><div class='fight-title'>Upcoming fight cards</div><div class='fight-date'>No live fight updates loaded right now. Check Latest News below.</div></div>";
-      return;
-    }
+const targetDate = new Date();
+targetDate.setDate(targetDate.getDate()+5);
 
-    document.getElementById("fights").innerHTML =
-      data.articles.slice(0, 4).map(article => \`
-        <div class="fight-card">
-          <a href="\${article.url}" target="_blank">\${article.title}</a>
-          <div class="fight-date">
-            \${article.description || "Tap to view event details"}
-          </div>
-          <div class="source">
-            \${article.source.name || "Fight Feed"}
-          </div>
-        </div>
-      \`).join("");
+function updateCountdown(){
 
-  } catch (err) {
-    document.getElementById("fights").innerHTML =
-      "<div class='fight-card'><div class='fight-title'>Upcoming fights unavailable</div><div class='fight-date'>Try refreshing the app.</div></div>";
-  }
+const now = new Date();
+const diff = targetDate - now;
+
+const days = Math.floor(diff / (1000*60*60*24));
+const hours = Math.floor((diff / (1000*60*60)) % 24);
+const mins = Math.floor((diff / (1000*60)) % 60);
+
+document.getElementById("countdown").innerHTML =
+days + "d " + hours + "h " + mins + "m";
+
 }
 
-async function loadNews(event, searchTerm) {
-  document.getElementById("news").innerHTML = "Loading news...";
+setInterval(updateCountdown,1000);
+updateCountdown();
 
-  document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
-  event.target.classList.add("active");
+async function loadBreaking(){
 
-  try {
-    const response = await fetch("/news?q=" + encodeURIComponent(searchTerm));
-    const data = await response.json();
+try{
 
-    if (!data.articles || data.articles.length === 0) {
-      document.getElementById("news").innerHTML =
-        "<h2>No articles loaded.</h2><div class='error'>" +
-        JSON.stringify(data, null, 2) +
-        "</div>";
-      return;
-    }
+const response = await fetch('/news?q=breaking ufc boxing mma');
+const data = await response.json();
 
-    document.getElementById("news").innerHTML =
-      data.articles.map(article => \`
-        <div class="article">
-          <a href="\${article.url}" target="_blank">\${article.title}</a>
-          <div class="source">\${article.source.name || "Fight News"}</div>
-        </div>
-      \`).join("");
+if(data.articles && data.articles.length > 0){
 
-  } catch (err) {
-    document.getElementById("news").innerHTML =
-      "<h2>No articles loaded.</h2><div class='error'>" +
-      err.message +
-      "</div>";
-  }
+document.getElementById("breakingText").innerHTML =
+data.articles[0].title;
+
 }
 
-loadFights();
+}catch(err){
+
+document.getElementById("breakingText").innerHTML =
+"Latest fight news unavailable";
+
+}
+
+}
+
+async function loadNews(event,search){
+
+document.querySelectorAll(".tab").forEach(btn=>{
+btn.classList.remove("active");
+});
+
+event.target.classList.add("active");
+
+document.getElementById("news").innerHTML =
+"Loading news...";
+
+try{
+
+const response = await fetch('/news?q='+encodeURIComponent(search));
+
+const data = await response.json();
+
+if(!data.articles || data.articles.length === 0){
+
+document.getElementById("news").innerHTML =
+"No articles available";
+
+return;
+
+}
+
+document.getElementById("news").innerHTML =
+data.articles.map(article => \`
+
+<div class="card">
+
+<a href="\${article.url}" target="_blank">
+\${article.title}
+</a>
+
+<div class="source">
+\${article.source.name || "Fight Feed"}
+</div>
+
+</div>
+
+\`).join("");
+
+}catch(err){
+
+document.getElementById("news").innerHTML =
+"Error loading news";
+
+}
+
+}
+
+loadBreaking();
 
 loadNews(
-  { target: document.querySelector(".tab.active") },
-  "boxing mma ufc"
+{target:document.querySelector(".tab.active")},
+'boxing mma ufc'
 );
+
 </script>
 
 </body>
 </html>
-  `);
+
+`);
 });
 
 app.get("/news", async (req, res) => {
-  const query = req.query.q || "boxing mma ufc";
 
-  try {
-    const url =
-      "https://gnews.io/api/v4/search?q=" +
-      encodeURIComponent(query) +
-      "&lang=en&max=10&apikey=" +
-      GNEWS_API_KEY;
+const query = req.query.q || "boxing mma ufc";
 
-    const response = await fetch(url);
-    const data = await response.json();
+try{
 
-    res.json(data);
-  } catch (error) {
-    res.json({ error: error.message });
-  }
-});
+const url =
+"https://gnews.io/api/v4/search?q=" +
+encodeURIComponent(query) +
+"&lang=en&max=10&apikey=" +
+GNEWS_API_KEY;
 
-app.get("/fights", async (req, res) => {
-  try {
-    const query = "upcoming UFC boxing fight card main event";
+const response = await fetch(url);
+const data = await response.json();
 
-    const url =
-      "https://gnews.io/api/v4/search?q=" +
-      encodeURIComponent(query) +
-      "&lang=en&max=8&apikey=" +
-      GNEWS_API_KEY;
+res.json(data);
 
-    const response = await fetch(url);
-    const data = await response.json();
+}catch(error){
 
-    res.json(data);
-  } catch (error) {
-    res.json({ error: error.message });
-  }
+res.json({error:error.message});
+
+}
+
 });
 
 app.listen(PORT, () => {
-  console.log("Fight Feed running on port " + PORT);
+console.log("Fight Feed running");
 });
