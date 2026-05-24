@@ -18,8 +18,8 @@ res.send(`
 
 <title>Fight Feed</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7863167684906431"
+     crossorigin="anonymous"></script>
 <style>
 
 body{
