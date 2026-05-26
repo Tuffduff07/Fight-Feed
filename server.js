@@ -101,22 +101,8 @@ body{margin:0;font-family:Arial;background:#050510;color:white;}
 <div class="section" id="scheduleSection" style="display:none;">
   <div class="sectionTitle">Fight Schedule</div>
 
-  <div class="card">
-    <div class="eventDate">Upcoming UFC Event</div>
-    <div class="eventText">Main card details coming soon</div>
-    <div class="source">UFC Schedule</div>
-  </div>
-
-  <div class="card">
-    <div class="eventDate">Upcoming Boxing Event</div>
-    <div class="eventText">Main event and undercard updates coming soon</div>
-    <div class="source">Boxing Schedule</div>
-  </div>
-
-  <div class="card">
-    <div class="eventDate">MMA Fight Week</div>
-    <div class="eventText">Latest event updates will appear in the news feed</div>
-    <div class="source">Fight Feed</div>
+  <div id="schedule">
+    Loading schedule...
   </div>
 </div>
 
@@ -157,6 +143,7 @@ function showSchedule(event){
   setActive(event);
   document.getElementById("newsSection").style.display = "none";
   document.getElementById("scheduleSection").style.display = "block";
+  loadSchedule();
 }
 
 async function loadBreaking(){
@@ -197,6 +184,35 @@ async function loadNews(search){
   }
 }
 
+async function loadSchedule(){
+  document.getElementById("schedule").innerHTML = "Loading real fight schedule...";
+
+  try{
+    const response = await fetch('/schedule');
+    const data = await response.json();
+
+    if(!data.articles || data.articles.length === 0){
+      document.getElementById("schedule").innerHTML =
+      "<div class='card'><div class='eventDate'>No schedule loaded</div><div class='eventText'>Check again later.</div></div>";
+      return;
+    }
+
+    document.getElementById("schedule").innerHTML =
+    data.articles.slice(0,6).map(article => \`
+      <div class="card">
+        <div class="eventDate">Upcoming Fight News</div>
+        <a href="\${article.url}" target="_blank">\${article.title}</a>
+        <div class="eventText">\${article.description || "Tap for full event details"}</div>
+        <div class="source">\${article.source.name || "Fight Schedule"}</div>
+      </div>
+    \`).join("");
+
+  }catch(err){
+    document.getElementById("schedule").innerHTML =
+    "<div class='card'><div class='eventDate'>Schedule unavailable</div><div class='eventText'>Try refreshing the app.</div></div>";
+  }
+}
+
 loadBreaking();
 loadNews('boxing mma ufc');
 
@@ -212,6 +228,26 @@ app.get("/news", async (req, res) => {
 const query = req.query.q || "boxing mma ufc";
 
 try{
+const url =
+"https://gnews.io/api/v4/search?q=" +
+encodeURIComponent(query) +
+"&lang=en&max=10&apikey=" +
+GNEWS_API_KEY;
+
+const response = await fetch(url);
+const data = await response.json();
+
+res.json(data);
+
+}catch(error){
+res.json({error:error.message});
+}
+});
+
+app.get("/schedule", async (req, res) => {
+try{
+const query = "upcoming UFC boxing fight card main event schedule";
+
 const url =
 "https://gnews.io/api/v4/search?q=" +
 encodeURIComponent(query) +
