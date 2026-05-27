@@ -2,268 +2,261 @@ const express = require("express");
 const app = express();
 
 const PORT = process.env.PORT || 3000;
-const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 
-const LOGO_PATH = "https://i.imgur.com/8Km9tLL.png";
+app.use(express.static("public"));
 
-app.use(express.static(__dirname));
+const articles = [
+  {
+    title: "UFC Fight Night Preview",
+    category: "UFC",
+    summary: "A quick look at the biggest UFC matchups coming up this weekend.",
+  },
+  {
+    title: "Boxing Heavyweight Division Heating Up",
+    category: "Boxing",
+    summary: "The heavyweight scene is building again with major fights expected soon.",
+  },
+  {
+    title: "MMA Rankings Update",
+    category: "Rankings",
+    summary: "A simple breakdown of the fighters making moves in the rankings.",
+  },
+  {
+    title: "Upcoming Fight Card Watchlist",
+    category: "Upcoming Fights",
+    summary: "The key fights fans should keep an eye on over the next few weeks.",
+  },
+  {
+    title: "Fight Results Round-Up",
+    category: "Results",
+    summary: "Recent MMA and boxing results rounded up in one place.",
+  },
+];
 
 app.get("/", (req, res) => {
-res.send(`
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Fight Feed</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #111;
+          color: white;
+        }
+        header {
+          background: #000;
+          padding: 20px;
+          text-align: center;
+          border-bottom: 3px solid #e50914;
+        }
+        nav {
+          background: #1c1c1c;
+          padding: 12px;
+          text-align: center;
+        }
+        nav a {
+          color: white;
+          margin: 0 10px;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        .hero {
+          padding: 30px 20px;
+          text-align: center;
+          background: linear-gradient(#222, #111);
+        }
+        .hero h1 {
+          color: #e50914;
+          font-size: 40px;
+        }
+        .container {
+          padding: 20px;
+          max-width: 1000px;
+          margin: auto;
+        }
+        .card {
+          background: #1d1d1d;
+          margin-bottom: 18px;
+          padding: 18px;
+          border-radius: 10px;
+          border-left: 5px solid #e50914;
+        }
+        .category {
+          color: #e50914;
+          font-weight: bold;
+          font-size: 14px;
+        }
+        footer {
+          background: #000;
+          text-align: center;
+          padding: 20px;
+          margin-top: 40px;
+          font-size: 14px;
+        }
+        footer a {
+          color: #e50914;
+          margin: 0 8px;
+          text-decoration: none;
+        }
+      </style>
+    </head>
+    <body>
 
-<!DOCTYPE html>
-<html>
-<head>
+      <header>
+        <h1>Fight Feed</h1>
+        <p>MMA & Boxing News, Results and Fight Updates</p>
+      </header>
 
-<title>Fight Feed</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <nav>
+        <a href="/">Home</a>
+        <a href="/ufc">UFC</a>
+        <a href="/boxing">Boxing</a>
+        <a href="/results">Results</a>
+        <a href="/upcoming-fights">Upcoming Fights</a>
+        <a href="/rankings">Rankings</a>
+      </nav>
 
-<script async
-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7863167684906431"
-crossorigin="anonymous"></script>
+      <section class="hero">
+        <h1>Latest Fight News</h1>
+        <p>Your home for MMA, UFC and boxing updates.</p>
+      </section>
 
-<style>
-body{margin:0;font-family:Arial;background:#050510;color:white;}
-.header{padding:30px 20px;background:linear-gradient(135deg,#b30000,#050510);}
-.logoRow{display:flex;align-items:center;gap:15px;}
-.logo{width:70px;height:70px;border-radius:15px;}
-.title{font-size:42px;font-weight:bold;color:#ff4444;}
-.subtitle{margin-top:10px;font-size:20px;color:#ddd;}
-.breaking{background:red;padding:12px;font-weight:bold;overflow:hidden;white-space:nowrap;}
-.breaking span{display:inline-block;padding-left:100%;animation:scroll 18s linear infinite;}
-@keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
-.section{padding:20px;}
-.sectionTitle{font-size:28px;margin-bottom:15px;}
-.card{background:#111122;padding:18px;border-radius:15px;margin-bottom:15px;border-left:5px solid red;}
-.card a{color:white;text-decoration:none;font-size:20px;font-weight:bold;}
-.source{margin-top:8px;color:#aaa;font-size:14px;}
-.countdown{font-size:30px;font-weight:bold;color:#ff4444;margin-top:10px;}
-.tabs{display:flex;gap:10px;overflow-x:auto;padding:15px;background:#070716;}
-.tab{background:#222;border:none;color:white;padding:12px 20px;border-radius:30px;font-size:18px;}
-.active{background:red;}
-.notifyBtn{width:100%;padding:18px;background:red;border:none;color:white;font-size:20px;font-weight:bold;border-radius:15px;margin-top:15px;}
-.adBox{background:#1a1a2d;padding:25px;border-radius:15px;text-align:center;border:2px dashed #444;margin-top:20px;}
-.eventDate{color:#ff4444;font-weight:bold;margin-bottom:8px;}
-.eventText{color:#ddd;margin-top:6px;}
-</style>
-
-</head>
-
-<body>
-
-<div class="header">
-  <div class="logoRow">
-    <img class="logo" src="${LOGO_PATH}">
-    <div>
-      <div class="title">Fight Feed</div>
-      <div class="subtitle">Live MMA & Boxing News</div>
-    </div>
-  </div>
-</div>
-
-<div class="breaking">
-  <span id="breakingText">Loading breaking news...</span>
-</div>
-
-<div class="section">
-  <div class="sectionTitle">Fight Alerts</div>
-  <button class="notifyBtn" onclick="alert('Fight alerts are coming soon')">
-    Fight alerts coming soon
-  </button>
-</div>
-
-<div class="section">
-  <div class="sectionTitle">Next Big Fight</div>
-  <div class="card">
-    <div>UFC Main Event Countdown</div>
-    <div class="countdown" id="countdown"></div>
-  </div>
-</div>
-
-<div class="tabs">
-  <button class="tab active" onclick="showNews(event,'boxing mma ufc')">News</button>
-  <button class="tab" onclick="showNews(event,'ufc')">UFC</button>
-  <button class="tab" onclick="showNews(event,'boxing')">Boxing</button>
-  <button class="tab" onclick="showSchedule(event)">Schedule</button>
-</div>
-
-<div class="section" id="newsSection">
-  <div class="sectionTitle">Latest News</div>
-  <div id="news">Loading news...</div>
-
-  <div class="adBox">
-    Advertisement Space
-    <br><br>
-    Google AdSense Ready 🔥
-  </div>
-</div>
-
-<div class="section" id="scheduleSection" style="display:none;">
-  <div class="sectionTitle">Fight Schedule</div>
-
-  <div id="schedule">
-    Loading schedule...
-  </div>
-</div>
-
-<script>
-
-const targetDate = new Date();
-targetDate.setDate(targetDate.getDate()+5);
-
-function updateCountdown(){
-  const now = new Date();
-  const diff = targetDate - now;
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff / (1000*60*60)) % 24);
-  const mins = Math.floor((diff / (1000*60)) % 60);
-
-  document.getElementById("countdown").innerHTML =
-  days + "d " + hours + "h " + mins + "m";
-}
-
-setInterval(updateCountdown,1000);
-updateCountdown();
-
-function setActive(event){
-  document.querySelectorAll(".tab").forEach(btn=>{
-    btn.classList.remove("active");
-  });
-  event.target.classList.add("active");
-}
-
-function showNews(event, search){
-  setActive(event);
-  document.getElementById("newsSection").style.display = "block";
-  document.getElementById("scheduleSection").style.display = "none";
-  loadNews(search);
-}
-
-function showSchedule(event){
-  setActive(event);
-  document.getElementById("newsSection").style.display = "none";
-  document.getElementById("scheduleSection").style.display = "block";
-  loadSchedule();
-}
-
-async function loadBreaking(){
-  try{
-    const response = await fetch('/news?q=breaking ufc boxing mma');
-    const data = await response.json();
-
-    if(data.articles && data.articles.length > 0){
-      document.getElementById("breakingText").innerHTML = data.articles[0].title;
-    }
-  }catch(err){
-    document.getElementById("breakingText").innerHTML = "Latest fight news unavailable";
-  }
-}
-
-async function loadNews(search){
-  document.getElementById("news").innerHTML = "Loading news...";
-
-  try{
-    const response = await fetch('/news?q='+encodeURIComponent(search));
-    const data = await response.json();
-
-    if(!data.articles || data.articles.length === 0){
-      document.getElementById("news").innerHTML = "No articles available";
-      return;
-    }
-
-    document.getElementById("news").innerHTML =
-    data.articles.map(article => \`
-      <div class="card">
-        <a href="\${article.url}" target="_blank">\${article.title}</a>
-        <div class="source">\${article.source.name || "Fight Feed"}</div>
+      <div class="container">
+        ${articles.map(article => `
+          <div class="card">
+            <div class="category">${article.category}</div>
+            <h2>${article.title}</h2>
+            <p>${article.summary}</p>
+            <p>Fight Feed brings fans quick updates, previews and results from across combat sports.</p>
+          </div>
+        `).join("")}
       </div>
-    \`).join("");
 
-  }catch(err){
-    document.getElementById("news").innerHTML = "Error loading news";
-  }
-}
+      <footer>
+        <p>© 2026 Fight Feed</p>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+      </footer>
 
-async function loadSchedule(){
-  document.getElementById("schedule").innerHTML = "Loading real fight schedule...";
+    </body>
+    </html>
+  `);
+});
 
-  try{
-    const response = await fetch('/schedule');
-    const data = await response.json();
+app.get("/ufc", (req, res) => {
+  res.send(page("UFC News", "Latest UFC updates, fight previews, results and rankings."));
+});
 
-    if(!data.articles || data.articles.length === 0){
-      document.getElementById("schedule").innerHTML =
-      "<div class='card'><div class='eventDate'>No schedule loaded</div><div class='eventText'>Check again later.</div></div>";
-      return;
-    }
+app.get("/boxing", (req, res) => {
+  res.send(page("Boxing News", "Latest boxing stories, heavyweight updates, fight previews and results."));
+});
 
-    document.getElementById("schedule").innerHTML =
-    data.articles.slice(0,6).map(article => \`
-      <div class="card">
-        <div class="eventDate">Upcoming Fight News</div>
-        <a href="\${article.url}" target="_blank">\${article.title}</a>
-        <div class="eventText">\${article.description || "Tap for full event details"}</div>
-        <div class="source">\${article.source.name || "Fight Schedule"}</div>
+app.get("/results", (req, res) => {
+  res.send(page("Fight Results", "Recent MMA, UFC and boxing results collected in one place."));
+});
+
+app.get("/upcoming-fights", (req, res) => {
+  res.send(page("Upcoming Fights", "Upcoming MMA and boxing cards to watch."));
+});
+
+app.get("/rankings", (req, res) => {
+  res.send(page("Rankings", "MMA and boxing ranking updates and fighter movement."));
+});
+
+app.get("/about", (req, res) => {
+  res.send(page("About Fight Feed", "Fight Feed is a combat sports news platform covering MMA, UFC, boxing, fight results, previews and rankings."));
+});
+
+app.get("/contact", (req, res) => {
+  res.send(page("Contact", "For enquiries, contact Fight Feed by email at fightfeedapp@gmail.com."));
+});
+
+app.get("/privacy-policy", (req, res) => {
+  res.send(page("Privacy Policy", "Fight Feed respects your privacy. We may use analytics and advertising services to improve the site. We do not sell personal information."));
+});
+
+app.get("/terms", (req, res) => {
+  res.send(page("Terms and Conditions", "By using Fight Feed, you agree to use the site for personal information purposes only. Content is provided for general sports news and entertainment."));
+});
+
+function page(title, text) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${title} | Fight Feed</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #111;
+          color: white;
+        }
+        header, footer {
+          background: #000;
+          text-align: center;
+          padding: 20px;
+        }
+        nav {
+          background: #1c1c1c;
+          padding: 12px;
+          text-align: center;
+        }
+        nav a {
+          color: white;
+          margin: 0 10px;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        .content {
+          max-width: 900px;
+          margin: auto;
+          padding: 30px 20px;
+        }
+        h1 {
+          color: #e50914;
+        }
+        a {
+          color: #e50914;
+        }
+      </style>
+    </head>
+    <body>
+      <header>
+        <h1>Fight Feed</h1>
+      </header>
+
+      <nav>
+        <a href="/">Home</a>
+        <a href="/ufc">UFC</a>
+        <a href="/boxing">Boxing</a>
+        <a href="/results">Results</a>
+        <a href="/upcoming-fights">Upcoming Fights</a>
+        <a href="/rankings">Rankings</a>
+      </nav>
+
+      <div class="content">
+        <h1>${title}</h1>
+        <p>${text}</p>
+        <p>More updates will be added regularly as Fight Feed continues to grow.</p>
+        <p><a href="/">Back to Home</a></p>
       </div>
-    \`).join("");
 
-  }catch(err){
-    document.getElementById("schedule").innerHTML =
-    "<div class='card'><div class='eventDate'>Schedule unavailable</div><div class='eventText'>Try refreshing the app.</div></div>";
-  }
+      <footer>
+        <p>© 2026 Fight Feed</p>
+      </footer>
+    </body>
+    </html>
+  `;
 }
-
-loadBreaking();
-loadNews('boxing mma ufc');
-
-</script>
-
-</body>
-</html>
-
-`);
-});
-
-app.get("/news", async (req, res) => {
-const query = req.query.q || "boxing mma ufc";
-
-try{
-const url =
-"https://gnews.io/api/v4/search?q=" +
-encodeURIComponent(query) +
-"&lang=en&max=10&apikey=" +
-GNEWS_API_KEY;
-
-const response = await fetch(url);
-const data = await response.json();
-
-res.json(data);
-
-}catch(error){
-res.json({error:error.message});
-}
-});
-
-app.get("/schedule", async (req, res) => {
-try{
-const query = "upcoming UFC boxing fight card main event schedule";
-
-const url =
-"https://gnews.io/api/v4/search?q=" +
-encodeURIComponent(query) +
-"&lang=en&max=10&apikey=" +
-GNEWS_API_KEY;
-
-const response = await fetch(url);
-const data = await response.json();
-
-res.json(data);
-
-}catch(error){
-res.json({error:error.message});
-}
-});
 
 app.listen(PORT, () => {
-console.log("Fight Feed running");
+  console.log(`Fight Feed running on port ${PORT}`);
 });
