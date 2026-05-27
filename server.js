@@ -10,7 +10,7 @@ app.use(express.static("public"));
 app.get("/", (req, res) => {
 
   res.send(`
-  
+
   <!DOCTYPE html>
   <html>
   <head>
@@ -55,7 +55,7 @@ app.get("/", (req, res) => {
       }
 
       .hero h1{
-        color:#e50914;
+        color:#ff0000;
         font-size:42px;
       }
 
@@ -70,11 +70,11 @@ app.get("/", (req, res) => {
         margin-bottom:20px;
         padding:20px;
         border-radius:10px;
-        border-left:5px solid #e50914;
+        border-left:5px solid #ff0000;
       }
 
       .category{
-        color:#e50914;
+        color:#ff0000;
         font-size:14px;
         font-weight:bold;
         margin-bottom:10px;
@@ -93,7 +93,7 @@ app.get("/", (req, res) => {
       .card a{
         display:inline-block;
         margin-top:10px;
-        color:#e50914;
+        color:#ff0000;
         text-decoration:none;
         font-weight:bold;
       }
@@ -106,7 +106,7 @@ app.get("/", (req, res) => {
       }
 
       footer a{
-        color:#e50914;
+        color:#ff0000;
         margin:0 8px;
         text-decoration:none;
       }
@@ -220,7 +220,7 @@ app.get("/article/:slug", (req, res) => {
         background:#000;
         text-align:center;
         padding:20px;
-        border-bottom:3px solid #e50914;
+        border-bottom:3px solid #ff0000;
       }
 
       .content{
@@ -230,7 +230,7 @@ app.get("/article/:slug", (req, res) => {
       }
 
       .category{
-        color:#e50914;
+        color:#ff0000;
         font-weight:bold;
       }
 
@@ -241,7 +241,7 @@ app.get("/article/:slug", (req, res) => {
       }
 
       a{
-        color:#e50914;
+        color:#ff0000;
         text-decoration:none;
       }
 
@@ -329,7 +329,7 @@ function simplePage(title, text){
         background:#000;
         text-align:center;
         padding:20px;
-        border-bottom:3px solid #e50914;
+        border-bottom:3px solid #ff0000;
       }
 
       .content{
@@ -339,11 +339,11 @@ function simplePage(title, text){
       }
 
       h1{
-        color:#e50914;
+        color:#ff0000;
       }
 
       a{
-        color:#e50914;
+        color:#ff0000;
       }
 
       footer{
