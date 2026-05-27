@@ -8,145 +8,183 @@ const articles = require("./articles");
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
+
   res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Fight Feed</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body {
-          margin: 0;
-          font-family: Arial, sans-serif;
-          background: #111;
-          color: white;
-        }
+  
+  <!DOCTYPE html>
+  <html>
+  <head>
 
-        header {
-          background: #000;
-          padding: 20px;
-          text-align: center;
-          border-bottom: 3px solid #e50914;
-        }
+    <title>Fight Feed</title>
 
-        nav {
-          background: #1c1c1c;
-          padding: 12px;
-          text-align: center;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        nav a {
-          color: white;
-          margin: 0 10px;
-          text-decoration: none;
-          font-weight: bold;
-        }
+    <style>
 
-        .hero {
-          padding: 40px 20px;
-          text-align: center;
-          background: linear-gradient(#222, #111);
-        }
+      body{
+        margin:0;
+        font-family:Arial, sans-serif;
+        background:#111;
+        color:white;
+      }
 
-        .hero h1 {
-          color: #e50914;
-          font-size: 42px;
-        }
+      header{
+        background:#000;
+        text-align:center;
+        padding:20px;
+        border-bottom:3px solid #e50914;
+      }
 
-        .container {
-          max-width: 1000px;
-          margin: auto;
-          padding: 20px;
-        }
+      nav{
+        background:#1c1c1c;
+        padding:12px;
+        text-align:center;
+      }
 
-        .card {
-          background: #1d1d1d;
-          margin-bottom: 20px;
-          padding: 20px;
-          border-radius: 10px;
-          border-left: 5px solid #e50914;
-        }
+      nav a{
+        color:white;
+        margin:0 10px;
+        text-decoration:none;
+        font-weight:bold;
+      }
 
-        .category {
-          color: #e50914;
-          font-size: 14px;
-          font-weight: bold;
-        }
+      .hero{
+        padding:40px 20px;
+        text-align:center;
+        background:linear-gradient(#222,#111);
+      }
 
-        .card a {
-          display: inline-block;
-          margin-top: 10px;
-          color: #e50914;
-          text-decoration: none;
-          font-weight: bold;
-        }
+      .hero h1{
+        color:#e50914;
+        font-size:42px;
+      }
 
-        footer {
-          background: #000;
-          text-align: center;
-          padding: 20px;
-          margin-top: 40px;
-        }
+      .container{
+        max-width:1000px;
+        margin:auto;
+        padding:20px;
+      }
 
-        footer a {
-          color: #e50914;
-          margin: 0 8px;
-          text-decoration: none;
-        }
-      </style>
-    </head>
+      .card{
+        background:#1d1d1d;
+        margin-bottom:20px;
+        padding:20px;
+        border-radius:10px;
+        border-left:5px solid #e50914;
+      }
 
-    <body>
+      .category{
+        color:#e50914;
+        font-size:14px;
+        font-weight:bold;
+        margin-bottom:10px;
+      }
 
-      <header>
-        <h1>Fight Feed</h1>
-        <p>MMA & Boxing News, Results and Fight Updates</p>
-      </header>
+      .article-image{
+        width:100%;
+        border-radius:10px;
+        margin-bottom:15px;
+      }
 
-      <nav>
-        <a href="/">Home</a>
-        <a href="/ufc">UFC</a>
-        <a href="/boxing">Boxing</a>
-        <a href="/results">Results</a>
-        <a href="/upcoming-fights">Upcoming Fights</a>
-        <a href="/rankings">Rankings</a>
-      </nav>
+      .card h2{
+        margin-top:0;
+      }
 
-      <section class="hero">
-        <h1>Latest Fight News</h1>
-        <p>Your home for combat sports updates.</p>
-      </section>
+      .card a{
+        display:inline-block;
+        margin-top:10px;
+        color:#e50914;
+        text-decoration:none;
+        font-weight:bold;
+      }
 
-      <div class="container">
+      footer{
+        background:#000;
+        text-align:center;
+        padding:20px;
+        margin-top:40px;
+      }
 
-        ${articles.map(article => `
-          <div class="card">
-            <div class="category">${article.category}</div>
+      footer a{
+        color:#e50914;
+        margin:0 8px;
+        text-decoration:none;
+      }
 
-            <h2>${article.title}</h2>
+    </style>
 
-            <p>${article.summary}</p>
+  </head>
 
-            <a href="/article/${article.slug}">
-              Read Full Article →
-            </a>
+  <body>
+
+    <header>
+      <h1>Fight Feed</h1>
+      <p>MMA & Boxing News, Results and Fight Updates</p>
+    </header>
+
+    <nav>
+      <a href="/">Home</a>
+      <a href="/ufc">UFC</a>
+      <a href="/boxing">Boxing</a>
+      <a href="/results">Results</a>
+      <a href="/upcoming-fights">Upcoming Fights</a>
+      <a href="/rankings">Rankings</a>
+    </nav>
+
+    <section class="hero">
+      <h1>Latest Fight News</h1>
+      <p>Your home for combat sports updates.</p>
+    </section>
+
+    <div class="container">
+
+      ${articles.map(article => `
+
+        <div class="card">
+
+          <div class="category">
+            ${article.category}
           </div>
-        `).join("")}
 
-      </div>
+          <img 
+            src="/images/E0A332BD-43E5-43B9-81D0-196FE97ABA84.png"
+            class="article-image"
+          >
 
-      <footer>
-        <p>© 2026 Fight Feed</p>
+          <h2>
+            ${article.title}
+          </h2>
 
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-        <a href="/privacy-policy">Privacy Policy</a>
-        <a href="/terms">Terms</a>
-      </footer>
+          <p>
+            ${article.summary}
+          </p>
 
-    </body>
-    </html>
+          <a href="/article/${article.slug}">
+            Read Full Article →
+          </a>
+
+        </div>
+
+      `).join("")}
+
+    </div>
+
+    <footer>
+
+      <p>© 2026 Fight Feed</p>
+
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms">Terms</a>
+
+    </footer>
+
+  </body>
+  </html>
+
   `);
+
 });
 
 app.get("/article/:slug", (req, res) => {
@@ -155,220 +193,259 @@ app.get("/article/:slug", (req, res) => {
     a => a.slug === req.params.slug
   );
 
-  if (!article) {
+  if(!article){
     return res.status(404).send("Article not found");
   }
 
   res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>${article.title}</title>
 
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!DOCTYPE html>
+  <html>
+  <head>
 
-      <style>
-        body {
-          margin: 0;
-          font-family: Arial, sans-serif;
-          background: #111;
-          color: white;
-        }
+    <title>${article.title}</title>
 
-        header {
-          background: #000;
-          text-align: center;
-          padding: 20px;
-          border-bottom: 3px solid #e50914;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .content {
-          max-width: 900px;
-          margin: auto;
-          padding: 30px 20px;
-        }
+    <style>
 
-        .category {
-          color: #e50914;
-          font-weight: bold;
-        }
+      body{
+        margin:0;
+        font-family:Arial,sans-serif;
+        background:#111;
+        color:white;
+      }
 
-        a {
-          color: #e50914;
-          text-decoration: none;
-        }
+      header{
+        background:#000;
+        text-align:center;
+        padding:20px;
+        border-bottom:3px solid #e50914;
+      }
 
-        footer {
-          background: #000;
-          text-align: center;
-          padding: 20px;
-          margin-top: 40px;
-        }
-      </style>
-    </head>
+      .content{
+        max-width:900px;
+        margin:auto;
+        padding:30px 20px;
+      }
 
-    <body>
+      .category{
+        color:#e50914;
+        font-weight:bold;
+      }
 
-      <header>
-        <h1>Fight Feed</h1>
-      </header>
+      .article-image{
+        width:100%;
+        border-radius:10px;
+        margin:20px 0;
+      }
 
-      <div class="content">
+      a{
+        color:#e50914;
+        text-decoration:none;
+      }
 
-        <div class="category">${article.category}</div>
+      footer{
+        background:#000;
+        text-align:center;
+        padding:20px;
+        margin-top:40px;
+      }
 
-        <h1>${article.title}</h1>
+    </style>
 
-        <p>${article.date}</p>
+  </head>
 
-        <p>${article.body}</p>
+  <body>
 
-        <br>
+    <header>
+      <h1>Fight Feed</h1>
+    </header>
 
-        <a href="/">← Back to Home</a>
+    <div class="content">
 
+      <div class="category">
+        ${article.category}
       </div>
 
-      <footer>
-        <p>© 2026 Fight Feed</p>
-      </footer>
+      <h1>
+        ${article.title}
+      </h1>
 
-    </body>
-    </html>
+      <img 
+        src="/images/E0A332BD-43E5-43B9-81D0-196FE97ABA84.png"
+        class="article-image"
+      >
+
+      <p>
+        ${article.date}
+      </p>
+
+      <p>
+        ${article.body}
+      </p>
+
+      <br>
+
+      <a href="/">
+        ← Back to Home
+      </a>
+
+    </div>
+
+    <footer>
+      <p>© 2026 Fight Feed</p>
+    </footer>
+
+  </body>
+  </html>
+
   `);
+
 });
 
-function simplePage(title, text) {
+function simplePage(title, text){
 
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>${title}</title>
 
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!DOCTYPE html>
+  <html>
+  <head>
 
-      <style>
-        body {
-          margin: 0;
-          font-family: Arial, sans-serif;
-          background: #111;
-          color: white;
-        }
+    <title>${title}</title>
 
-        header {
-          background: #000;
-          text-align: center;
-          padding: 20px;
-          border-bottom: 3px solid #e50914;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .content {
-          max-width: 900px;
-          margin: auto;
-          padding: 30px 20px;
-        }
+    <style>
 
-        h1 {
-          color: #e50914;
-        }
+      body{
+        margin:0;
+        font-family:Arial,sans-serif;
+        background:#111;
+        color:white;
+      }
 
-        a {
-          color: #e50914;
-        }
+      header{
+        background:#000;
+        text-align:center;
+        padding:20px;
+        border-bottom:3px solid #e50914;
+      }
 
-        footer {
-          background: #000;
-          text-align: center;
-          padding: 20px;
-          margin-top: 40px;
-        }
-      </style>
-    </head>
+      .content{
+        max-width:900px;
+        margin:auto;
+        padding:30px 20px;
+      }
 
-    <body>
+      h1{
+        color:#e50914;
+      }
 
-      <header>
-        <h1>Fight Feed</h1>
-      </header>
+      a{
+        color:#e50914;
+      }
 
-      <div class="content">
-        <h1>${title}</h1>
+      footer{
+        background:#000;
+        text-align:center;
+        padding:20px;
+        margin-top:40px;
+      }
 
-        <p>${text}</p>
+    </style>
 
-        <a href="/">← Back to Home</a>
-      </div>
+  </head>
 
-      <footer>
-        <p>© 2026 Fight Feed</p>
-      </footer>
+  <body>
 
-    </body>
-    </html>
+    <header>
+      <h1>Fight Feed</h1>
+    </header>
+
+    <div class="content">
+
+      <h1>${title}</h1>
+
+      <p>${text}</p>
+
+      <a href="/">
+        ← Back to Home
+      </a>
+
+    </div>
+
+    <footer>
+      <p>© 2026 Fight Feed</p>
+    </footer>
+
+  </body>
+  </html>
+
   `;
+
 }
 
-app.get("/ufc", (req, res) => {
+app.get("/ufc", (req,res)=>{
   res.send(simplePage(
     "UFC News",
     "Latest UFC news, previews, rankings and results."
   ));
 });
 
-app.get("/boxing", (req, res) => {
+app.get("/boxing", (req,res)=>{
   res.send(simplePage(
     "Boxing News",
     "Latest boxing updates from around the world."
   ));
 });
 
-app.get("/results", (req, res) => {
+app.get("/results", (req,res)=>{
   res.send(simplePage(
     "Fight Results",
     "Recent MMA and boxing results all in one place."
   ));
 });
 
-app.get("/upcoming-fights", (req, res) => {
+app.get("/upcoming-fights", (req,res)=>{
   res.send(simplePage(
     "Upcoming Fights",
     "Upcoming fight cards and major combat sports events."
   ));
 });
 
-app.get("/rankings", (req, res) => {
+app.get("/rankings", (req,res)=>{
   res.send(simplePage(
     "Rankings",
     "Updated MMA and boxing rankings."
   ));
 });
 
-app.get("/about", (req, res) => {
+app.get("/about", (req,res)=>{
   res.send(simplePage(
     "About Fight Feed",
     "Fight Feed is a combat sports news platform covering MMA and boxing."
   ));
 });
 
-app.get("/contact", (req, res) => {
+app.get("/contact", (req,res)=>{
   res.send(simplePage(
     "Contact",
     "Email: fightfeedapp@gmail.com"
   ));
 });
 
-app.get("/privacy-policy", (req, res) => {
+app.get("/privacy-policy", (req,res)=>{
   res.send(simplePage(
     "Privacy Policy",
-    "Fight Feed may use analytics and advertising services to improve user experience."
+    "Fight Feed may use analytics and advertising services."
   ));
 });
 
-app.get("/terms", (req, res) => {
+app.get("/terms", (req,res)=>{
   res.send(simplePage(
     "Terms and Conditions",
-    "By using Fight Feed you agree to our site terms and policies."
+    "By using Fight Feed you agree to our terms and policies."
   ));
 });
 
